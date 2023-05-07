@@ -1,13 +1,14 @@
 pipeline {
     agent any
 
-     stage('Checkout') {
+
+    stages {
+        stage('Checkout') {
             steps {
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'docker-hub-creds', url: 'https://github.com/kountak/Devops_project.git']])
             }
         }
-
-    stages {
+        
         stage('Build') {
             steps {
                 // Clone le code source depuis GitHub
