@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+     stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/kountak/Devops_project.git']]])
+            }
+        }
+
     stages {
         stage('Build') {
             steps {
