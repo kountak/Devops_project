@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 // Clone le code source depuis GitHub
-                git 'https://github.com/kountakr/Devops_project.git'
+                git 'https://github.com/kountak/Devops_project.git'
 
                 // Construit l'image Docker
                 sh 'docker build -t calculatorr .'
