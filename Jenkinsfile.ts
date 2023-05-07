@@ -2,32 +2,37 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                // Clone le code source depuis GitHub
-                git 'https://github.com/kountak/Devops_project.git'
-
-                // Construit l'image Docker
-                sh 'docker build -t calculator .'
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/kountak/Devops_project.git']]])
             }
         }
 
-        stage('Push') {
+        stage('Build and Push Image') {
             steps {
-                // Envoie l'image vers le registre Docker (par exemple Docker Hub)
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-                    sh "docker tag calculator $DOCKER_USERNAME/calculator"
-                    sh "docker push $DOCKER_USERNAME/calculator"
+                script {
+                    docker.build("kountak/calculator:latest")
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        docker.image('kountak/calculator:latest').push()
+                    }
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                // Démarre les conteneurs Docker à l'aide de docker-compose
-                sh 'docker-compose up -d'
+                script {
+                    sshagent(['ssh-key']) {
+                        sshCommand remote: remote, command: 'docker-compose pull && docker-compose up -d'
+                    }
+                }
+            }
+        }
+        stage('test') {
+            steps {
+                sh "docker run --rm calculator pytest"
             }
         }
     }
 }
+

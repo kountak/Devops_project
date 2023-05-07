@@ -1,8 +1,9 @@
-version: '3'
+version: '3.8'
 
 services:
-  app:
+  calculator:
     build: .
     ports:
-      - "5000:5000"
-    restart: always
+      - 5000:5000
+    environment:
+      FLASK_APP: calculator.py
