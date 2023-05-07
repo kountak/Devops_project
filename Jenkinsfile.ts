@@ -8,7 +8,7 @@ pipeline {
                 git 'https://github.com/kountak/Devops_project.git'
 
                 // Construit l'image Docker
-                sh 'docker build -t calculatorr .'
+                sh 'docker build -t calculator .'
             }
         }
 
