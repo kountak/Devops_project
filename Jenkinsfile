@@ -22,7 +22,7 @@ pipeline {
         stage('Push') {
             steps {
                 // Envoie l'image vers le registre Docker (par exemple Docker Hub)
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
                     sh "docker tag calculator $DOCKER_USERNAME/calculator"
                     sh "docker push $DOCKER_USERNAME/calculator"
