@@ -1,42 +1,29 @@
 pipeline {
-    agent any
-
-
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'docker-hub-creds', url: 'https://github.com/kountak/Devops_project.git']])
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                // Clone le code source depuis GitHub
-                git 'https://github.com/kountak/Devops_project.git'
-
-                // Construit l'image Docker
-                sh 'docker build -t calculator .'
-            }
-        }
-
-        stage('Push') {
-            steps {
-                // Envoie l'image vers le registre Docker (par exemple Docker Hub)
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-                    sh "docker tag calculator $DOCKER_USERNAME/calculator"
-                    sh "docker push $DOCKER_USERNAME/calculator"
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                // Démarre les conteneurs Docker à l'aide de docker-compose
-                sh 'docker-compose up -d'
-            }
-        }
+  agent any
+  stages {
+    stage('Build') {
+      steps {
+        sh 'docker-compose build'
+      }
     }
+    stage('Test') {
+      steps {
+        sh 'docker-compose up -d db'
+        sh 'docker-compose up -d sonarqube'
+        sh 'docker-compose up -d grafana'
+      }
+      post {
+        always {
+          sh 'docker-compose down -v'
+        }
+      }
+    }
+    stage('Deploy') {
+      steps {
+        sh 'docker-compose up -d'
+      }
+    }
+  }
 }
 
 

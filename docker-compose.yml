@@ -1,9 +1,32 @@
-version: '3.8'
-
+version: '3'
 services:
   calculator:
     build: .
     ports:
-      - 5000:5000
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+  db:
+    image: postgres
     environment:
-      FLASK_APP: calculator.py
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    networks:
+      - mynetwork
+  sonarqube:
+    image: sonarqube
+    ports:
+      - "9000:9000"
+    networks:
+      - mynetwork
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
